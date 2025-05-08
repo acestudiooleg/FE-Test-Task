@@ -5,11 +5,18 @@ describe("Task 2 - different search source", function () {
     "<p>If <strong>searchModuleId</strong> is not defined, throw error must be thrown.</p>";
 
   describe(desc, function () {
-    it("must throw exception if module id is unknown", function () {
+    it("must throw exception if module id is unknown", async function () {
       var galleryTested = new ImageGallery(window.imageResolver);
-      expect(function(){
-        galleryTested.search("cat", "unknownModuleId");
-      }).toThrow();
+
+      let error = '';
+
+      try {
+        await galleryTested.search("cat", "unknownModuleId")
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).toEqual(new Error("Invalid search module ID: unknownModuleId. Valid modules are: local, pixabay"));
     });
   });
 });
