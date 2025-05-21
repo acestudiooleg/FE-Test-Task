@@ -13,14 +13,24 @@ class PixabaySearchModule extends BaseSearchModule {
   constructor(apiKey) {
     super();
     this.apiKey = apiKey;
+    this.controller = null;
   }
   async search(query) {
     const url = `https://pixabay.com/api/?key=${
       this.apiKey
     }&q=${encodeURIComponent(query)}&per_page=100`;
 
+    if (this.controller) {
+      this.controller.abort();
+    }
+
+    this.controller = new AbortController();
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        signal: this.controller.signal,
+      });
+
       if (!response.ok) {
         throw new Error(`Pixabay API error: ${response.status}`);
       }
@@ -29,10 +39,10 @@ class PixabaySearchModule extends BaseSearchModule {
 
       return {
         query,
-        images: data.hits.map((hit) => ({
-          id: hit.id,
-          url: hit.previewURL,
-          tags: hit.tags,
+        images: (data.hits || []).map(({ id, previewURL, tags }) => ({
+          id,
+          url: previewURL,
+          tags,
         })),
       };
     } catch (error) {

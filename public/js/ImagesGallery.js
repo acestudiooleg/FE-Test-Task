@@ -8,6 +8,7 @@ window.ImageGallery = (function () {
       this.imagesResolver = imagesResolver;
       this._initView();
       this._initViewFunctionality();
+      this.currentSearchId = 0;
     }
 
     /**
@@ -15,14 +16,17 @@ window.ImageGallery = (function () {
      * @param {String} searchModuleId
      */
     search(query, searchModuleId) {
+      const currentId = ++this.currentSearchId;
+
+      const handleResult = (result) =>
+        this.currentSearchId === currentId &&
+        this._onReceiveSearchResult(result);
+
       const searchResults = this.imagesResolver.search(query, searchModuleId);
-      if (searchResults instanceof Promise) {
-        searchResults.then((data) => {
-          this._onReceiveSearchResult(data);
-        });
-      } else {
-        this._onReceiveSearchResult(searchResults);
-      }
+
+      searchResults instanceof Promise
+        ? searchResults.then(handleResult).catch((e) => console.error(e))
+        : handleResult(searchResults);
     }
 
     addToElement(element) {
