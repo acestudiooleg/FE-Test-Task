@@ -1,50 +1,91 @@
+class BaseSearchModule {
+  /**
+   * Description placeholder
+   *
+   * @returns {*}
+   */
+  search(query) {
+    throw new Error('"search" method is not implemented');
+  }
+}
+
+class PixabaySearchModule extends BaseSearchModule {
+  constructor(apiKey) {
+    super();
+    this.apiKey = apiKey;
+  }
+  async search(query) {
+    const url = `https://pixabay.com/api/?key=${
+      this.apiKey
+    }&q=${encodeURIComponent(query)}&per_page=100`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Pixabay API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return {
+        query,
+        images: data.hits.map((hit) => ({
+          id: hit.id,
+          url: hit.previewURL,
+          tags: hit.tags,
+        })),
+      };
+    } catch (error) {
+      console.error("Error fetching from Pixabay:", error);
+      return { query, images: [] };
+    }
+  }
+}
+
+class LocalSearchModule extends BaseSearchModule {
+  search(query) {
+    const lowercasedQuery = query.toLowerCase();
+
+    const images = window.localDB
+      .filter((item) => {
+        const itemTags = item.tags.split(", ");
+
+        return itemTags.includes(lowercasedQuery);
+      })
+      .map(({ id, previewURL, tags }) => ({
+        id,
+        url: previewURL,
+        tags,
+      }));
+
+    return { query, images };
+  }
+}
+
 window.ImagesResolver = (function () {
   class ImagesResolver {
-    constructor() {}
+    constructor() {
+      const PIXABAY_API_KEY = "8522875-59a2673910903be627161f155";
+
+      this.modules = {
+        local: new LocalSearchModule(),
+        pixabay: new PixabaySearchModule(PIXABAY_API_KEY),
+      };
+    }
 
     search(query, searchModuleId = "local") {
-      const supportedModules = ["local"];
-
       if (!searchModuleId) {
         throw new Error(`Missing required 'searchModuleId' parameter`);
       }
-      if (!supportedModules.includes(searchModuleId)) {
+      const module = this.modules[searchModuleId];
+
+      if (!module) {
         throw new Error(`Unknown searchModuleId '${searchModuleId}'`);
       }
 
       if (!query) return { query, images: [] };
 
-      const lowercasedQuery = query.toLowerCase();
-
-      const images = window.localDB
-        .filter((item) => {
-          const itemTags = item.tags.split(", ");
-
-          return itemTags.includes(lowercasedQuery);
-        })
-        .map(({ id, previewURL, tags }) => ({
-          id,
-          url: previewURL,
-          tags,
-        }));
-
-      return { query, images };
-
-      // return {
-      //   query: "example",
-      //   images: [
-      //     {
-      //       id: 1,
-      //       url: "/img/mammal-3162194_640.jpg",
-      //       tags: "panda",
-      //     },
-      //     {
-      //       id: 2,
-      //       url: "/img/panda-659186_640.png",
-      //       tags: "panda",
-      //     },
-      //   ],
-      // };
+      return module.search(query);
     }
   }
 

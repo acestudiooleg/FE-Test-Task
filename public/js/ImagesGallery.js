@@ -16,7 +16,13 @@ window.ImageGallery = (function () {
      */
     search(query, searchModuleId) {
       const searchResults = this.imagesResolver.search(query, searchModuleId);
-      this._onReceiveSearchResult(searchResults);
+      if (searchResults instanceof Promise) {
+        searchResults.then((data) => {
+          this._onReceiveSearchResult(data);
+        });
+      } else {
+        this._onReceiveSearchResult(searchResults);
+      }
     }
 
     addToElement(element) {
@@ -25,7 +31,7 @@ window.ImageGallery = (function () {
 
     _onUserSearch(ev) {
       ev.preventDefault();
-      this.search(this.seachInput.value);
+      this.search(this.seachInput.value, this.selectModule.value);
     }
 
     _onReceiveSearchResult(result) {
@@ -55,6 +61,16 @@ window.ImageGallery = (function () {
       this.seachInput.className = "gallery__search form-control";
       this.seachInput.placeholder = "search by tag";
       this.formGroup.appendChild(this.seachInput);
+
+      this.selectModule = document.createElement("select");
+      ["local", "pixabay"].forEach((module) => {
+        const option = document.createElement("option");
+        option.value = module;
+        option.textContent = module;
+        this.selectModule.appendChild(option);
+      });
+      this.selectModule.className = "form-control mr-3";
+      this.formGroup.appendChild(this.selectModule);
 
       this.searchButton = document.createElement("button");
       this.searchButton.className = "gallery__button btn btn-primary";
