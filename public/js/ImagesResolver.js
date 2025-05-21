@@ -2,7 +2,16 @@ window.ImagesResolver = (function () {
   class ImagesResolver {
     constructor() {}
 
-    search(query) {
+    search(query, searchModuleId = "local") {
+      const supportedModules = ["local"];
+
+      if (!searchModuleId) {
+        throw new Error(`Missing required 'searchModuleId' parameter`);
+      }
+      if (!supportedModules.includes(searchModuleId)) {
+        throw new Error(`Unknown searchModuleId '${searchModuleId}'`);
+      }
+
       if (!query) return { query, images: [] };
 
       const lowercasedQuery = query.toLowerCase();

@@ -12,9 +12,10 @@ window.ImageGallery = (function () {
 
     /**
      * @param {String} query
+     * @param {String} searchModuleId
      */
-    search(query) {
-      const searchResults = this.imagesResolver.search(query);
+    search(query, searchModuleId) {
+      const searchResults = this.imagesResolver.search(query, searchModuleId);
       this._onReceiveSearchResult(searchResults);
     }
 
@@ -32,8 +33,8 @@ window.ImageGallery = (function () {
       const imagesInfo = result.images;
 
       imagesInfo.forEach((image) => {
-        const imgNode = document.createElement('img');
-        imgNode.setAttribute('src', image.url);
+        const imgNode = document.createElement("img");
+        imgNode.setAttribute("src", image.url);
         this.searchResults.appendChild(imgNode);
       });
     }
