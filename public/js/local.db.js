@@ -1,3 +1,36 @@
+/**
+ * @fileoverview Defines the local image database.
+ */
+
+/**
+ * Represents an image object in the local database.
+ * @typedef {object} LocalDBImage
+ * @property {number} webformatHeight - The height of the web format image.
+ * @property {number} webformatWidth - The width of the web format image.
+ * @property {number} likes - The number of likes for the image.
+ * @property {number} imageWidth - The original width of the image.
+ * @property {number} id - The unique ID of the image.
+ * @property {number} user_id - The ID of the user who uploaded the image.
+ * @property {number} views - The number of views for the image.
+ * @property {number} comments - The number of comments on the image.
+ * @property {string} pageURL - The URL of the image page on Pixabay.
+ * @property {number} imageHeight - The original height of the image.
+ * @property {string} type - The type of image (e.g., "photo", "illustration").
+ * @property {number} previewHeight - The height of the preview image.
+ * @property {string} tags - Comma-separated tags for the image.
+ * @property {number} downloads - The number of times the image has been downloaded.
+ * @property {string} user - The username of the uploader.
+ * @property {number} favorites - The number of favorites for the image.
+ * @property {number} imageSize - The size of the image in bytes.
+ * @property {number} previewWidth - The width of the preview image.
+ * @property {string} previewURL - The URL of the preview image (local path).
+ * @property {string} [webformatURL] - The URL of the web format image (optional).
+ */
+
+/**
+ * An array of image objects, serving as a local image database.
+ * @type {Array<LocalDBImage>}
+ */
 window.localDB = [
   {
     "webformatHeight": 426,
